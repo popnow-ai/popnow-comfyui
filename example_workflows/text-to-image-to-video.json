@@ -1,0 +1,238 @@
+{
+  "id": "d10094fc-86f0-5b69-bccc-993f07947b0f",
+  "revision": 0,
+  "last_node_id": 3,
+  "last_link_id": 2,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "PopNow_google_nano_banana_2_1_text_to_image",
+      "pos": [
+        40,
+        60
+      ],
+      "size": [
+        400,
+        260
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "prompt",
+          "type": "STRING",
+          "widget": {
+            "name": "prompt"
+          },
+          "link": null
+        },
+        {
+          "name": "aspect_ratio",
+          "type": "COMBO",
+          "widget": {
+            "name": "aspect_ratio"
+          },
+          "link": null
+        },
+        {
+          "name": "resolution",
+          "type": "COMBO",
+          "widget": {
+            "name": "resolution"
+          },
+          "link": null
+        },
+        {
+          "name": "enable_web_search",
+          "type": "BOOLEAN",
+          "widget": {
+            "name": "enable_web_search"
+          },
+          "link": null
+        },
+        {
+          "name": "enable_image_search",
+          "type": "BOOLEAN",
+          "widget": {
+            "name": "enable_image_search"
+          },
+          "link": null
+        },
+        {
+          "name": "output_format",
+          "type": "COMBO",
+          "widget": {
+            "name": "output_format"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "links": [
+            1
+          ]
+        },
+        {
+          "name": "task_id",
+          "type": "STRING",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PopNow_google_nano_banana_2_1_text_to_image"
+      },
+      "widgets_values": [
+        "A paper boat on a rain puddle at dusk, neon reflections, cinematic still",
+        "16:9",
+        "1k",
+        false,
+        false,
+        "png"
+      ],
+      "widgets_values_named": {
+        "prompt": "A paper boat on a rain puddle at dusk, neon reflections, cinematic still",
+        "aspect_ratio": "16:9",
+        "resolution": "1k",
+        "enable_web_search": false,
+        "enable_image_search": false,
+        "output_format": "png"
+      }
+    },
+    {
+      "id": 2,
+      "type": "PopNow_minimax_h3_image_to_video",
+      "pos": [
+        480,
+        60
+      ],
+      "size": [
+        400,
+        260
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "prompt",
+          "type": "STRING",
+          "widget": {
+            "name": "prompt"
+          },
+          "link": null
+        },
+        {
+          "name": "image_url",
+          "type": "IMAGE",
+          "link": 1
+        },
+        {
+          "name": "last_image_url",
+          "type": "IMAGE",
+          "link": null,
+          "shape": 7
+        },
+        {
+          "name": "resolution",
+          "type": "COMBO",
+          "widget": {
+            "name": "resolution"
+          },
+          "link": null
+        },
+        {
+          "name": "duration_seconds",
+          "type": "INT",
+          "widget": {
+            "name": "duration_seconds"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "video",
+          "type": "VIDEO",
+          "links": [
+            2
+          ]
+        },
+        {
+          "name": "task_id",
+          "type": "STRING",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PopNow_minimax_h3_image_to_video"
+      },
+      "widgets_values": [
+        "Rain ripples spread around the boat as it drifts forward, slow push in",
+        "768p",
+        5
+      ],
+      "widgets_values_named": {
+        "prompt": "Rain ripples spread around the boat as it drifts forward, slow push in",
+        "resolution": "768p",
+        "duration_seconds": 5
+      }
+    },
+    {
+      "id": 3,
+      "type": "SaveVideo",
+      "pos": [
+        920,
+        60
+      ],
+      "size": [
+        270,
+        80
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "video",
+          "type": "VIDEO",
+          "link": 2
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "SaveVideo"
+      },
+      "widgets_values": [
+        "popnow/video",
+        "auto",
+        "auto"
+      ]
+    }
+  ],
+  "links": [
+    [
+      1,
+      1,
+      0,
+      2,
+      1,
+      "IMAGE"
+    ],
+    [
+      2,
+      2,
+      0,
+      3,
+      0,
+      "VIDEO"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {},
+  "version": 0.4
+}

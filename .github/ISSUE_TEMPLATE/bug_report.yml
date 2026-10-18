@@ -1,0 +1,32 @@
+name: Bug report
+description: A PopNow node does not work as documented.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the report. Never paste your API key (`sk-popnow-...`) or a workflow that contains one.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: The node you ran, what you expected, and what happened instead. Include the error text from the ComfyUI console.
+    validations:
+      required: true
+  - type: textarea
+    id: workflow
+    attributes:
+      label: Workflow
+      description: Attach or paste the workflow JSON (Workflow > Export), or describe the graph.
+  - type: input
+    id: request-id
+    attributes:
+      label: request_id or task id
+      description: Printed at the end of most errors, and on the node's task id output.
+  - type: input
+    id: versions
+    attributes:
+      label: Versions
+      description: popnow-comfyui version (shown in the console at start), ComfyUI version, OS and Python version.
+    validations:
+      required: true

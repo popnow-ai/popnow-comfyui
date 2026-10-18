@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: ComfyUI guide and API documentation
+    url: https://popnow.ai/docs/comfyui
+    about: Install steps, inputs, prices and error fixes.
+  - name: Account, billing or task questions
+    url: https://popnow.ai/contact
+    about: Questions about your account, credits or a specific task go to PopNow support.

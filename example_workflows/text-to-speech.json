@@ -1,0 +1,179 @@
+{
+  "id": "00160aa0-67ed-52d4-b242-66dbb75d83ee",
+  "revision": 0,
+  "last_node_id": 2,
+  "last_link_id": 1,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "PopNow_xai_grok_tts_text_to_speech",
+      "pos": [
+        40,
+        60
+      ],
+      "size": [
+        400,
+        260
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "text",
+          "type": "STRING",
+          "widget": {
+            "name": "text"
+          },
+          "link": null
+        },
+        {
+          "name": "voice_id",
+          "type": "COMBO",
+          "widget": {
+            "name": "voice_id"
+          },
+          "link": null
+        },
+        {
+          "name": "language",
+          "type": "COMBO",
+          "widget": {
+            "name": "language"
+          },
+          "link": null
+        },
+        {
+          "name": "speed",
+          "type": "FLOAT",
+          "widget": {
+            "name": "speed"
+          },
+          "link": null
+        },
+        {
+          "name": "output_format",
+          "type": "COMBO",
+          "widget": {
+            "name": "output_format"
+          },
+          "link": null
+        },
+        {
+          "name": "sample_rate",
+          "type": "COMBO",
+          "widget": {
+            "name": "sample_rate"
+          },
+          "link": null
+        },
+        {
+          "name": "bitrate",
+          "type": "COMBO",
+          "widget": {
+            "name": "bitrate"
+          },
+          "link": null
+        },
+        {
+          "name": "text_normalization",
+          "type": "BOOLEAN",
+          "widget": {
+            "name": "text_normalization"
+          },
+          "link": null
+        },
+        {
+          "name": "optimize_streaming_latency",
+          "type": "COMBO",
+          "widget": {
+            "name": "optimize_streaming_latency"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "audio",
+          "type": "AUDIO",
+          "links": [
+            1
+          ]
+        },
+        {
+          "name": "task_id",
+          "type": "STRING",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PopNow_xai_grok_tts_text_to_speech"
+      },
+      "widgets_values": [
+        "Welcome to PopNow in ComfyUI. Every model is a node.",
+        "Eve \u00b7 female \u00b7 multilingual (default)",
+        "Auto-detect",
+        1.0,
+        "MP3",
+        "24 kHz",
+        "128 kbps",
+        false,
+        "0 \u2014 best quality"
+      ],
+      "widgets_values_named": {
+        "text": "Welcome to PopNow in ComfyUI. Every model is a node.",
+        "voice_id": "Eve \u00b7 female \u00b7 multilingual (default)",
+        "language": "Auto-detect",
+        "speed": 1.0,
+        "output_format": "MP3",
+        "sample_rate": "24 kHz",
+        "bitrate": "128 kbps",
+        "text_normalization": false,
+        "optimize_streaming_latency": "0 \u2014 best quality"
+      }
+    },
+    {
+      "id": 2,
+      "type": "SaveAudio",
+      "pos": [
+        480,
+        60
+      ],
+      "size": [
+        270,
+        80
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "audio",
+          "type": "AUDIO",
+          "link": 1
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "SaveAudio"
+      },
+      "widgets_values": [
+        "popnow/audio"
+      ]
+    }
+  ],
+  "links": [
+    [
+      1,
+      1,
+      0,
+      2,
+      0,
+      "AUDIO"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {},
+  "version": 0.4
+}

@@ -1,0 +1,10 @@
+# Files a ComfyUI install does not need: ComfyUI never loads them.
+# Tests and maintainer scripts stay in the repository on GitHub.
+tests/
+scripts/
+.github/
+__pycache__/
+*.pyc
+.DS_Store
+.venv/
+REPO_META.json

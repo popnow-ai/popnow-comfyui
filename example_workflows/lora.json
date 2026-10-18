@@ -1,0 +1,204 @@
+{
+  "id": "dff2f3c7-3f1a-5c40-ba5b-de59d6335830",
+  "revision": 0,
+  "last_node_id": 3,
+  "last_link_id": 2,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "PopNow_LoRA",
+      "pos": [
+        40,
+        60
+      ],
+      "size": [
+        400,
+        130
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "source",
+          "type": "STRING",
+          "widget": {
+            "name": "source"
+          },
+          "link": null
+        },
+        {
+          "name": "scale",
+          "type": "FLOAT",
+          "widget": {
+            "name": "scale"
+          },
+          "link": null
+        },
+        {
+          "name": "loras",
+          "type": "POPNOW_LORAS",
+          "link": null,
+          "shape": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "loras",
+          "type": "POPNOW_LORAS",
+          "links": [
+            1
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PopNow_LoRA"
+      },
+      "widgets_values": [
+        "https://huggingface.co/tarn59/pixel_art_style_lora_z_image_turbo/resolve/main/pixel_art_style_z_image_turbo.safetensors",
+        1.0
+      ],
+      "widgets_values_named": {
+        "source": "https://huggingface.co/tarn59/pixel_art_style_lora_z_image_turbo/resolve/main/pixel_art_style_z_image_turbo.safetensors",
+        "scale": 1.0
+      }
+    },
+    {
+      "id": 2,
+      "type": "PopNow_alibaba_z_image_turbo_lora_text_to_image",
+      "pos": [
+        480,
+        60
+      ],
+      "size": [
+        400,
+        260
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "prompt",
+          "type": "STRING",
+          "widget": {
+            "name": "prompt"
+          },
+          "link": null
+        },
+        {
+          "name": "aspect_ratio",
+          "type": "COMBO",
+          "widget": {
+            "name": "aspect_ratio"
+          },
+          "link": null
+        },
+        {
+          "name": "loras",
+          "type": "POPNOW_LORAS",
+          "link": 1,
+          "shape": 7
+        },
+        {
+          "name": "output_format",
+          "type": "COMBO",
+          "widget": {
+            "name": "output_format"
+          },
+          "link": null
+        },
+        {
+          "name": "seed",
+          "type": "INT",
+          "widget": {
+            "name": "seed"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "links": [
+            2
+          ]
+        },
+        {
+          "name": "task_id",
+          "type": "STRING",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PopNow_alibaba_z_image_turbo_lora_text_to_image"
+      },
+      "widgets_values": [
+        "Pixel art style. A lighthouse on a cliff at dusk, warm window light, cozy retro game scene",
+        "1:1",
+        "jpeg",
+        0,
+        "fixed"
+      ],
+      "widgets_values_named": {
+        "prompt": "Pixel art style. A lighthouse on a cliff at dusk, warm window light, cozy retro game scene",
+        "aspect_ratio": "1:1",
+        "output_format": "jpeg",
+        "seed": 0,
+        "control_after_generate": "fixed"
+      }
+    },
+    {
+      "id": 3,
+      "type": "SaveImage",
+      "pos": [
+        920,
+        60
+      ],
+      "size": [
+        270,
+        80
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 2
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "SaveImage"
+      },
+      "widgets_values": [
+        "popnow/image"
+      ]
+    }
+  ],
+  "links": [
+    [
+      1,
+      1,
+      0,
+      2,
+      2,
+      "POPNOW_LORAS"
+    ],
+    [
+      2,
+      2,
+      0,
+      3,
+      0,
+      "IMAGE"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {},
+  "version": 0.4
+}
