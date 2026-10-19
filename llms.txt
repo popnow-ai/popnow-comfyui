@@ -2,7 +2,7 @@
 
 > ComfyUI custom node pack (Python package `popnow_nodes`, node category "PopNow") that runs every PopNow AI video, image and audio model in the cloud as a ComfyUI node: Kling, Seedance, Wan, Vidu, MiniMax, Nano Banana, GPT Image, Flux, Suno and more. No GPU and no model downloads; billed in PopNow credits (1 credit = $0.01).
 
-Install: ComfyUI Manager > Install via Git URL > `https://github.com/popnow-ai/popnow-comfyui`, or `cd ComfyUI/custom_nodes && git clone https://github.com/popnow-ai/popnow-comfyui`, then restart ComfyUI (ComfyUI Registry release coming). No extra Python dependencies. Auth: Settings > PopNow > API key, or the `POPNOW_API_KEY` environment variable (`sk-popnow-...`, from https://popnow.ai/api/console/keys).
+Install: Comfy Registry `popnow-comfyui` (ComfyUI Manager > search PopNow, or `comfy node install popnow-comfyui`), or `cd ComfyUI/custom_nodes && git clone https://github.com/popnow-ai/popnow-comfyui`, then restart ComfyUI (ComfyUI Registry release coming). No extra Python dependencies. Auth: Settings > PopNow > API key, or the `POPNOW_API_KEY` environment variable (`sk-popnow-...`, from https://popnow.ai/api/console/keys).
 
 ## Nodes
 

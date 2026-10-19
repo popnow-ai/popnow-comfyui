@@ -34,12 +34,11 @@ no subscription; failed runs are refunded). *Make it pop.*
 
 ## Quickstart
 
-1. **Install.** In **ComfyUI Manager**, choose **Install via Git URL** and paste
-   `https://github.com/popnow-ai/popnow-comfyui`, or clone it yourself:
+1. **Install.** In **ComfyUI Manager**, search for **PopNow** and click **Install**, or use the
+   [Comfy CLI](https://github.com/Comfy-Org/comfy-cli):
 
    ```bash
-   cd ComfyUI/custom_nodes
-   git clone https://github.com/popnow-ai/popnow-comfyui
+   comfy node install popnow-comfyui
    ```
 
 2. **Add your key.** Create a key at [popnow.ai/api/console/keys](https://popnow.ai/api/console/keys), restart
@@ -120,12 +119,13 @@ Every node with its call name and starting price: [MODELS.md](MODELS.md).
 
 ## Install
 
-The pack is not on the ComfyUI Registry yet (a registry release is coming), so install it from GitHub. There
+The pack is on the [Comfy Registry](https://registry.comfy.org/nodes/popnow-comfyui) as `popnow-comfyui`. There
 is nothing else to install: the nodes only use packages ComfyUI already ships.
 
-**ComfyUI Manager.** Open **Manager > Install via Git URL**, paste `https://github.com/popnow-ai/popnow-comfyui`
-and restart ComfyUI. If the Manager says the feature is blocked by its security level, either lower
-`security_level` to `normal-` in the Manager's `config.ini` on a local install, or use git below.
+**ComfyUI Manager.** Open **Manager > Custom Nodes Manager**, search for **PopNow**, click **Install** and restart
+ComfyUI.
+
+**Comfy CLI.** `comfy node install popnow-comfyui`
 
 **git.**
 
