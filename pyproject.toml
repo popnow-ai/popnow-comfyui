@@ -20,8 +20,7 @@ Repository = "https://github.com/popnow-ai/popnow-comfyui"
 Documentation = "https://popnow.ai/docs/comfyui"
 "Bug Tracker" = "https://github.com/popnow-ai/popnow-comfyui/issues"
 
-# ComfyUI Registry metadata. This package is not published to the registry yet; install it from
-# GitHub (see README.md).
+# ComfyUI Registry metadata (https://registry.comfy.org/publishers/popnow).
 [tool.comfy]
 PublisherId = "popnow"
 DisplayName = "PopNow"
