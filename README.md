@@ -25,7 +25,7 @@ PopNow is a browser-based AI studio for videos, images and music: image-to-video
 music and speech, one-tap trending video effects and image styles. This pack brings its developer API
 (`https://api.popnow.ai/api/v1`) into ComfyUI graphs. Each model is one node whose inputs come from that
 model's published input schema, so the node offers exactly what the model accepts. Generation runs on
-PopNow's servers and is paid in credits from the same wallet as popnow.ai (1 credit = $0.01; credit packs,
+PopNow's servers and is paid in credits from the same wallet as popnow.ai (1 credit = $0.001; credit packs,
 no subscription; failed runs are refunded). *Make it pop.*
 
 <!-- stats:start -->
@@ -190,7 +190,7 @@ and image you share.
 ## Costs and safety
 
 - **Price on the node.** Each node's badge shows the current rate for the options you picked, for example
-  `5.55 cr/s` for MiniMax H3 at 768p or `7.2 cr/image` for Nano Banana 2.1, and updates as you change them.
+  `37 cr/s` for MiniMax H3 at 768p or `48 cr/image` for Nano Banana 2.1, and updates as you change them.
   `~` marks models whose final charge depends on the output.
 - **Quote before every run.** Each run calls `jobs/quote` first and holds at most the quoted amount. Set
   **Settings > PopNow > Max credits per run** and any run quoted above it stops before anything is held.
@@ -248,7 +248,7 @@ the other options are widgets on the node, with the price for your settings on i
 
 ### How much does a run cost?
 
-Each model has its own rate in credits (1 credit = $0.01), shown on the node and in
+Each model has its own rate in credits (1 credit = $0.001), shown on the node and in
 [MODELS.md](MODELS.md): image models are priced per image, video models per second of output, speech per
 1,000 characters or per request. Every run is quoted before it starts, the node prints the final charge
 when it finishes, and failed runs are refunded. Prices: [popnow.ai/pricing](https://popnow.ai/pricing).

@@ -1,12 +1,12 @@
 """Price tables for the badge each model node shows.
 
-PopNow prices every model in credits (1 credit = $0.01). Each catalog entry carries
+PopNow prices every model in credits (1 credit = $0.001). Each catalog entry carries
 ``credits = {unit, perUnit, rules}``: ``unit`` is how the price scales (``per_image``,
 ``per_second``...), ``perUnit`` is the starting price, and each rule applies when the request
 matches its ``when`` values. ``"*"`` in ``when`` stands for the one field that sets the tier
 (the single entry of the schema's ``x-pricing.variantFields``).
 
-The badge is a rate, never a total: "5.55 cr/s", not "27.75 credits". A total depends on things
+The badge is a rate, never a total: "37 cr/s", not "185 credits". A total depends on things
 the node cannot know before it runs (how long an uploaded clip is, how many images come back),
 and an estimate shown as a fact is worse than none. The authoritative amount is the quote taken
 when the node runs, and the charged amount is printed on the node afterwards.
@@ -29,7 +29,7 @@ UNIT_LABELS = {
     "per_1k_characters": "1k characters",
     "per_1k_tokens": "1k tokens",
 }
-CREDIT_USD = Decimal("0.01")
+CREDIT_USD = Decimal("0.001")
 
 
 def _decimal(value: Any) -> Decimal | None:
@@ -51,7 +51,7 @@ def format_credits(value: Any) -> str:
 
 
 def format_usd(credits: Any) -> str:
-    """The dollar equivalent of a credit amount: 5.55 credits -> $0.0555."""
+    """The dollar equivalent of a credit amount: 37 credits -> $0.037."""
     amount = _decimal(credits)
     if amount is None:
         return ""

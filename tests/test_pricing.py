@@ -106,18 +106,19 @@ class FormatTest(unittest.TestCase):
         self.assertEqual(format_credits(5.55), "5.55")
         self.assertEqual(format_credits(8), "8")
         self.assertEqual(format_credits("8.0"), "8")
-        self.assertEqual(format_usd(5.55), "$0.0555")
-        self.assertEqual(format_usd(8), "$0.08")
-        self.assertEqual(format_usd(100), "$1.00")
+        self.assertEqual(format_usd(5.55), "$0.00555")
+        self.assertEqual(format_usd(48), "$0.048")
+        self.assertEqual(format_usd(100), "$0.10")
+        self.assertEqual(format_usd(1000), "$1.00")
         self.assertEqual(key_value(True), "true")
         self.assertEqual(key_value(5.0), "5")
 
     def test_describe(self):
-        flat = {"rules": [], "from": "8", "unit": "image"}
-        self.assertEqual(describe_price(flat), "8 credits ($0.08) per image.")
-        tiers = {"rules": [{"credits": "5.55"}, {"credits": "11.1"}], "from": "5.55", "unit": "second"}
-        self.assertEqual(describe_price(tiers), "From 5.55 credits ($0.0555) per second.")
-        self.assertEqual(describe_price({**flat, "approximate": True}), "About 8 credits ($0.08) per image.")
+        flat = {"rules": [], "from": "48", "unit": "image"}
+        self.assertEqual(describe_price(flat), "48 credits ($0.048) per image.")
+        tiers = {"rules": [{"credits": "37"}, {"credits": "58"}], "from": "37", "unit": "second"}
+        self.assertEqual(describe_price(tiers), "From 37 credits ($0.037) per second.")
+        self.assertEqual(describe_price({**flat, "approximate": True}), "About 48 credits ($0.048) per image.")
         self.assertEqual(describe_price(None), "")
 
 

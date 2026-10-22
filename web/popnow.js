@@ -199,7 +199,7 @@ app.registerExtension({
       name: "Max credits per run (0 = no limit)",
       tooltip:
         "A node whose quote is above this many credits stops before anything is held. " +
-        "1 credit = $0.01. The quote is the most a run can cost.",
+        "1 credit = $0.001. The quote is the most a run can cost.",
       type: "number",
       defaultValue: 0,
       attrs: { min: 0, step: 10 },

@@ -71,19 +71,19 @@ class FakePopNow:
     async def credit(self, request: web.Request) -> web.Response:
         self._note("credit", request)
         return envelope(
-            {"available": "1.00", "held": "0", "total": "1.00", "availableCredits": 100, "heldCredits": 0, "totalCredits": 100}
+            {"available": "1.00", "held": "0", "total": "1.00", "availableCredits": 1000, "heldCredits": 0, "totalCredits": 1000}
         )
 
     async def quote(self, request: web.Request) -> web.Response:
         body = await request.json()
         self._note("quote", request, body)
-        credits = self.behaviour.get("quote_credits", 8)
+        credits = self.behaviour.get("quote_credits", 48)
         return envelope(
             {
                 "quoteId": f"q_{self.calls['quote']}",
                 "model": body["model"],
-                "estimatedCost": f"{credits / 100:.2f}",
-                "maxCharge": f"{credits / 100:.2f}",
+                "estimatedCost": f"{credits / 1000:.3f}",
+                "maxCharge": f"{credits / 1000:.3f}",
                 "maxCredits": credits,
                 "expectedCredits": credits,
                 "currency": "USD",
@@ -102,7 +102,7 @@ class FakePopNow:
             return envelope(None, code=503, status=503, **{"Retry-After": "0"})
         if n == 1 and self.behaviour.get("create_40901_first"):
             return envelope(None, code=40901, status=409)
-        return envelope({"taskId": "job_1", "state": "queued", "estimatedCost": "0.08", "estimatedCredits": 8}, status=202)
+        return envelope({"taskId": "job_1", "state": "queued", "estimatedCost": "0.048", "estimatedCredits": 48}, status=202)
 
     async def record(self, request: web.Request) -> web.Response:
         n = self._note("record", request)
@@ -113,7 +113,7 @@ class FakePopNow:
             output = {"assets": [pending if n == 1 else ready]}
         state = self.behaviour.get("state", "succeeded")
         return envelope(
-            {"taskId": "job_1", "model": "m/x/y", "state": state, "output": output, "credits": 8, "cost": "0.08", "settled": True}
+            {"taskId": "job_1", "model": "m/x/y", "state": state, "output": output, "credits": 48, "cost": "0.048", "settled": True}
         )
 
     async def ticket(self, request: web.Request) -> web.Response:

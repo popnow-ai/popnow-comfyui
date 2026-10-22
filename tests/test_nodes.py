@@ -192,7 +192,7 @@ class RunTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(sent["model"], "test/stt/speech-to-text")
         self.assertEqual(sent["input"], {"audio_url": "https://example.com/a.mp3", "seed": 3})
         self.assertEqual(sent["quoteId"], "q_1")
-        self.assertEqual(sent["expectedCredits"], 8)
+        self.assertEqual(sent["expectedCredits"], 48)
         self.assertEqual(self.fake.bodies["quote"][0]["input"], sent["input"])
 
     async def test_price_change_requotes_under_the_same_key(self):

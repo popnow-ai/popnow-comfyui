@@ -42,12 +42,12 @@ class ClientTest(unittest.IsolatedAsyncioTestCase):
     async def test_resend_keeps_the_idempotency_key(self):
         self.fake.behaviour["create_503_first"] = True
         task = await self.client.create_task(
-            "m/x/y", {"prompt": "p"}, idempotency_key="key-1", quote_id="q_1", expected_credits=8
+            "m/x/y", {"prompt": "p"}, idempotency_key="key-1", quote_id="q_1", expected_credits=48
         )
         self.assertEqual(task["taskId"], "job_1")
         keys = [h.get("Idempotency-Key") for h in self.fake.headers["create"]]
         self.assertEqual(keys, ["key-1", "key-1"])
-        self.assertEqual(self.fake.bodies["create"][0]["expectedCredits"], 8)
+        self.assertEqual(self.fake.bodies["create"][0]["expectedCredits"], 48)
         self.assertEqual(self.fake.bodies["create"][0]["quoteId"], "q_1")
 
     async def test_refunded_failure_is_not_replayed(self):
@@ -93,7 +93,7 @@ class ClientTest(unittest.IsolatedAsyncioTestCase):
 
     async def test_balance(self):
         balance = await self.client.balance()
-        self.assertEqual(balance["availableCredits"], 100)
+        self.assertEqual(balance["availableCredits"], 1000)
 
     async def test_failed_task_message(self):
         error = PopNowTaskFailed({"taskId": "job_9", "state": "failed", "errorCode": "generation_failed", "errorMessage": "boom"})

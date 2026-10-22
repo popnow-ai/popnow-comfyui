@@ -78,7 +78,7 @@ def models_md(items: list[dict]) -> str:
         "",
         "The list is generated from the model catalog bundled with this release. ComfyUI loads the live "
         "catalog at startup once an API key is set, so models added since then appear after a restart.",
-        "Prices are starting prices in credits (1 credit = $0.01); the badge on each node shows the rate "
+        "Prices are starting prices in credits (1 credit = $0.001); the badge on each node shows the rate "
         "for the options you pick.",
         "",
     ]

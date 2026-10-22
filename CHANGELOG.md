@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Prices follow the new credit unit (1 credit = $0.001 since 2026-10-19): the bundled catalog
+  snapshot, MODELS.md, the dollar amount in node descriptions and the settings tooltip.
+
 ## 0.1.0
 
 First release.
