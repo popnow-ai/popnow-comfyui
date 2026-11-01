@@ -10,10 +10,13 @@ which nodes exist on a fresh install. Two sources:
     python scripts/update_snapshot.py --public
         No key needed. Rebuilt from the public model reference (https://popnow.ai/docs/models,
         which lists every call name per model) and the public per-model files on popnow.ai
-        (https://popnow.ai/catalog/<model>.json, the input schemas and credit prices the
-        website and the API reference pages use).
+        (https://popnow.ai/catalog/<model>.json, the input schemas and rates the website and
+        the API reference pages use). Those files state rates in the deprecated credit
+        projection; they are converted exactly to the API's ``usd`` shape (1 credit = $0.001),
+        the same conversion the API reference pages on popnow.ai apply.
 
-Both write the same shape. Run python scripts/render_docs.py afterwards.
+Both write the same shape: a ``usd`` rate table per model, amounts as decimal strings. Run
+python scripts/render_docs.py afterwards.
 """
 
 from __future__ import annotations
@@ -86,6 +89,13 @@ def _clean_schema(schema: dict[str, Any]) -> dict[str, Any]:
     return schema
 
 
+def _usd_rates(endpoint: dict[str, Any]) -> dict[str, Any] | None:
+    """The endpoint's USD rate table, converted from its credit rates when it has no ``usd`` table."""
+    from popnow_nodes.pricing import usd_rates
+
+    return usd_rates(endpoint)
+
+
 def build_public() -> list[dict[str, Any]]:
     page = _get(f"{SITE}/docs/models").decode("utf-8")
     rows = ROW.findall(page)
@@ -95,6 +105,10 @@ def build_public() -> list[dict[str, Any]]:
     for slug, name, provider, cell in rows:
         name, provider = html.unescape(name), html.unescape(provider)
         record = json.loads(_get(f"{SITE}/catalog/{slug}.json"))
+        if record.get("plus"):
+            # Plus-tier models are not bundled; once a key is set they come from the live catalog.
+            print(f"skipped {slug}: Plus tier", file=sys.stderr)
+            continue
         for call_name in CALL.findall(cell):
             endpoint = _endpoint_for(call_name, record.get("endpoints") or [])
             if endpoint is None:
@@ -109,7 +123,7 @@ def build_public() -> list[dict[str, Any]]:
                     "modality": record.get("category"),
                     "tasks": [endpoint.get("task")],
                     "inputSchema": _clean_schema(endpoint.get("inputSchema") or {}),
-                    "credits": endpoint.get("credits"),
+                    "usd": _usd_rates(endpoint),
                     "summary": record.get("tagline") or "",
                     "docsSlug": slug,
                 }

@@ -38,7 +38,8 @@ KEPT_FIELDS = (
     "modality",
     "tasks",
     "inputSchema",
-    "credits",
+    "usd",
+    "credits",  # deprecated credit rates, kept only when a catalog has no ``usd`` table
     "taskTimeoutSeconds",
     "enabled",
     "available",
@@ -58,6 +59,8 @@ def slim(items: list[dict[str, Any]], known: dict[str, dict[str, Any]] | None = 
         if not isinstance(model_id, str) or not isinstance(item.get("inputSchema"), dict):
             continue
         entry = {key: item[key] for key in KEPT_FIELDS if key in item}
+        if isinstance(entry.get("usd"), dict):
+            entry.pop("credits", None)  # the USD rates replace the deprecated credit projection
         for key in DECORATION_FIELDS:
             value = item.get(key) or (known.get(model_id) or {}).get(key)
             if value:
@@ -107,7 +110,7 @@ def known_decoration() -> dict[str, dict[str, Any]]:
 
 
 async def fetch_live(api_key: str) -> list[dict[str, Any]]:
-    """Fetch the authenticated catalog (with input schemas and credit prices)."""
+    """Fetch the authenticated catalog (with input schemas and USD rates)."""
     from .client import PopNowClient
 
     async with PopNowClient(api_key, config.get_base_url()) as client:

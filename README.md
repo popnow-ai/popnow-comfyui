@@ -25,11 +25,12 @@ PopNow is a browser-based AI studio for videos, images and music: image-to-video
 music and speech, one-tap trending video effects and image styles. This pack brings its developer API
 (`https://api.popnow.ai/api/v1`) into ComfyUI graphs. Each model is one node whose inputs come from that
 model's published input schema, so the node offers exactly what the model accepts. Generation runs on
-PopNow's servers and is paid in credits from the same wallet as popnow.ai (1 credit = $0.001; credit packs,
-no subscription; failed runs are refunded). *Make it pop.*
+PopNow's servers and is paid in US dollars from your prepaid PopNow API balance (no subscription; every run
+is quoted first and failed runs are not charged). The API balance is separate from popnow.ai website
+credits: add funds in the [API console](https://popnow.ai/api/console/billing). *Make it pop.*
 
 <!-- stats:start -->
-**248 model nodes** (115 video, 116 image, 17 audio) from 127 model families, plus **PopNow Generate** and **PopNow LoRA**.
+**305 model nodes** (151 video, 135 image, 19 audio) from 169 model families, plus **PopNow Generate** and **PopNow LoRA**.
 <!-- stats:end -->
 
 ## Quickstart
@@ -43,7 +44,8 @@ no subscription; failed runs are refunded). *Make it pop.*
 
 2. **Add your key.** Create a key at [popnow.ai/api/console/keys](https://popnow.ai/api/console/keys), restart
    ComfyUI, open **Settings > PopNow** and paste it (or start ComfyUI with `POPNOW_API_KEY=sk-popnow-...` set).
-   A notice shows your credit balance. Restart once more so the node list comes from your account.
+   A notice shows your API balance in USD. Restart once more so the node list comes from your account.
+   Add funds to the API balance at [popnow.ai/api/console/billing](https://popnow.ai/api/console/billing).
 3. **Add a node and run.** Double-click the canvas and type a model name (`seedance`, `kling`, `wan`,
    `minimax`, `nano banana`, `suno`...), or browse **PopNow > Video / Image / Audio**. Wire **Load Image**
    into its image input if it takes one, connect **Save Image**, **Save Video** or **Save Audio**, and queue.
@@ -59,7 +61,7 @@ image to video, text to image to video, text to speech, LoRA, and PopNow Generat
 | Inputs and outputs | Standard ComfyUI `IMAGE`, `MASK`, `VIDEO`, `AUDIO` and `STRING` |
 | Hardware | None: models run on PopNow, so it works on laptops, Macs and CPU-only machines |
 | Dependencies | None beyond ComfyUI itself (Python 3.10+, the V3 node API) |
-| Pricing | Credits from your PopNow wallet; the rate is shown on every node and each run is quoted first |
+| Pricing | USD from your PopNow API balance; the rate is shown on every node and each run is quoted first |
 | New models | Picked up automatically: the node list is rebuilt from your account's catalog at each start |
 | License | MIT |
 
@@ -68,39 +70,46 @@ image to video, text to image to video, text to speech, LoRA, and PopNow Generat
 The node list follows the live PopNow catalog (`GET /api/v1/models`). At the time of this release:
 
 <!-- models:start -->
-### Video (115 nodes)
+### Video (151 nodes)
 
 | Maker | Models |
 | --- | --- |
-| MiniMax | [MiniMax H3](https://popnow.ai/docs/models/minimax-h3), [MiniMax H3 Singularity LoRA](https://popnow.ai/docs/models/minimax-h3-singularity-lora), [MiniMax H3 Max](https://popnow.ai/docs/models/minimax-h3-max), [MiniMax H3 LoRA](https://popnow.ai/docs/models/minimax-h3-lora), [MiniMax H3 360 Orbit](https://popnow.ai/docs/models/minimax-h3-360-orbit) |
-| ByteDance | [Seedance 2.5](https://popnow.ai/docs/models/seedance-2-5), [Seedance 2.0 Mini](https://popnow.ai/docs/models/seedance-2-0-mini), [Seedance 2.0](https://popnow.ai/docs/models/seedance-2-0), [Seedance 2.0 Fast](https://popnow.ai/docs/models/seedance-2-0-fast), [Seedance 1.5 Pro](https://popnow.ai/docs/models/seedance-1-5-pro) |
-| Kuaishou | [Kling 3.0](https://popnow.ai/docs/models/kling-3-0), [Kling O3](https://popnow.ai/docs/models/kling-o3), [Kling 4.0](https://popnow.ai/docs/models/kling-4-0), [Kling 3.0 Turbo](https://popnow.ai/docs/models/kling-3-0-turbo), [Kling 2.6](https://popnow.ai/docs/models/kling-2-6), [Kling 2.5 Turbo](https://popnow.ai/docs/models/kling-2-5-turbo), [Kling 2.1 Master](https://popnow.ai/docs/models/kling-2-1-master), [Kling 2.1](https://popnow.ai/docs/models/kling-2-1) |
+| MiniMax | [MiniMax H3](https://popnow.ai/docs/models/minimax-h3), [MiniMax H3 HighSpeed](https://popnow.ai/docs/models/minimax-h3-highspeed), [MiniMax H3 Lite](https://popnow.ai/docs/models/minimax-h3-lite), [MiniMax H3 X](https://popnow.ai/docs/models/minimax-h3-x), [MiniMax H3 X Turbo](https://popnow.ai/docs/models/minimax-h3-x-turbo), [MiniMax H3 Character Swap](https://popnow.ai/docs/models/minimax-h3-character-swap), [MiniMax H3 Singularity LoRA](https://popnow.ai/docs/models/minimax-h3-singularity-lora), [MiniMax H3 Max](https://popnow.ai/docs/models/minimax-h3-max), [MiniMax H3 LoRA](https://popnow.ai/docs/models/minimax-h3-lora), [MiniMax H3 Edit](https://popnow.ai/docs/models/minimax-h3-edit), [MiniMax H3 360 Orbit](https://popnow.ai/docs/models/minimax-h3-360-orbit) |
+| ByteDance | [Seedance 2.5](https://popnow.ai/docs/models/seedance-2-5), [OmniHuman 2.0](https://popnow.ai/docs/models/omnihuman-2-0), [Seedance 2.0 Mini](https://popnow.ai/docs/models/seedance-2-0-mini), [Seedance 2.0](https://popnow.ai/docs/models/seedance-2-0), [Seedance 2.0 Fast](https://popnow.ai/docs/models/seedance-2-0-fast), [SeedVR2 Video](https://popnow.ai/docs/models/seedvr2-video) |
+| Kuaishou | [Kling 4.0](https://popnow.ai/docs/models/kling-4-0), [Kling O3](https://popnow.ai/docs/models/kling-o3), [Kling 3.0 Turbo](https://popnow.ai/docs/models/kling-3-0-turbo), [Kling 3.0](https://popnow.ai/docs/models/kling-3-0), [Kling Avatar 2.0](https://popnow.ai/docs/models/kling-avatar-2-0), [Kling 2.6](https://popnow.ai/docs/models/kling-2-6), [Kling 2.5 Turbo](https://popnow.ai/docs/models/kling-2-5-turbo), [Kling 2.1 Master](https://popnow.ai/docs/models/kling-2-1-master), [Kling 2.1](https://popnow.ai/docs/models/kling-2-1) |
 | Vidu | [Vidu Q4 Preview](https://popnow.ai/docs/models/vidu-q4-preview), [Vidu Q3 Turbo](https://popnow.ai/docs/models/vidu-q3-turbo), [Vidu Q3](https://popnow.ai/docs/models/vidu-q3), [Vidu Q3 Pro](https://popnow.ai/docs/models/vidu-q3-pro) |
 | Alibaba | [Wan 3.0](https://popnow.ai/docs/models/wan-3-0), [Wan 3.0 Prime](https://popnow.ai/docs/models/wan-3-0-prime), [Wan 3.0 Pro Prime](https://popnow.ai/docs/models/wan-3-0-pro-prime), [Wan 3.0 Pro](https://popnow.ai/docs/models/wan-3-0-pro), [HappyHorse 1.1](https://popnow.ai/docs/models/happyhorse-1-1), [Wan 2.6 Flash](https://popnow.ai/docs/models/wan-2-6-flash), [Wan 2.6](https://popnow.ai/docs/models/wan-2-6), [Wan 2.5](https://popnow.ai/docs/models/wan-2-5), [Wan 2.2 Animate](https://popnow.ai/docs/models/wan-2-2-animate), [Wan 2.2 LoRA](https://popnow.ai/docs/models/wan-2-2-lora), [Wan 2.2](https://popnow.ai/docs/models/wan-2-2), [Wan 2.2 5B LoRA](https://popnow.ai/docs/models/wan-2-2-5b-lora), [Wan 2.1 LoRA](https://popnow.ai/docs/models/wan-2-1-lora) |
+| VEED | [VEED Dubbing Pro](https://popnow.ai/docs/models/veed-dubbing-pro), [VEED Dubbing](https://popnow.ai/docs/models/veed-dubbing) |
+| PixVerse | [PixVerse V6 Max](https://popnow.ai/docs/models/pixverse-v6-max), [PixVerse V6 Effects](https://popnow.ai/docs/models/pixverse-v6-effects), [PixVerse V6](https://popnow.ai/docs/models/pixverse-v6) |
 | Lightricks | [LTX 2.5](https://popnow.ai/docs/models/ltx-2-5), [LTX-2.3 LoRA](https://popnow.ai/docs/models/ltx-2-3-lora), [LTX-2 19B](https://popnow.ai/docs/models/ltx-2-19b), [LTX-2 19B LoRA](https://popnow.ai/docs/models/ltx-2-19b-lora) |
 | Black Forest Labs | [FLUX 3](https://popnow.ai/docs/models/flux-3) |
+| Sand.ai | [daVinci-MagiHuman](https://popnow.ai/docs/models/davinci-magihuman) |
 | Tencent | [HunyuanVideo 1.5](https://popnow.ai/docs/models/hunyuan-video-1-5) |
-| PopNow tools | [Video Upscaler](https://popnow.ai/docs/models/video-upscaler-v1) |
+| PopNow tools | [Video Face Swap](https://popnow.ai/docs/models/face-swap-video-v1), [Video Upscaler](https://popnow.ai/docs/models/video-upscaler-v1), [Video Translator](https://popnow.ai/docs/models/video-translator-v1), [Talking Avatar](https://popnow.ai/docs/models/talking-avatar-v1), [Lip Sync](https://popnow.ai/docs/models/lip-sync-v1), [Video Background Remover](https://popnow.ai/docs/models/background-remover-video-v1), [Video Face Enhancer](https://popnow.ai/docs/models/face-enhancer-video-v1), [Video Music Remover](https://popnow.ai/docs/models/music-remover-v1), [Video Eraser](https://popnow.ai/docs/models/video-eraser-v1), [Video Restorer](https://popnow.ai/docs/models/video-restorer-v1) |
 
-### Image (116 nodes)
+### Image (135 nodes)
 
 | Maker | Models |
 | --- | --- |
 | Google | [Nano Banana 2.1](https://popnow.ai/docs/models/nano-banana-2-1), [Nano Banana Pro](https://popnow.ai/docs/models/nano-banana-pro), [Nano Banana 2](https://popnow.ai/docs/models/nano-banana-2) |
 | OpenAI | [GPT Image 2.5 Sunburst](https://popnow.ai/docs/models/gpt-image-2-5-sunburst), [GPT Image 2.5 Flare](https://popnow.ai/docs/models/gpt-image-2-5-flare), [GPT Image 2](https://popnow.ai/docs/models/gpt-image-2) |
-| ByteDance | [Seedream 5.0 Pro](https://popnow.ai/docs/models/seedream-5-0-pro), [Seedream 5.0 Flash](https://popnow.ai/docs/models/seedream-5-0-flash), [Seedream 5.0 Lite](https://popnow.ai/docs/models/seedream-5-0-lite), [Seedream 4.0](https://popnow.ai/docs/models/seedream-4-0) |
+| ByteDance | [Seedream 5.0 Pro](https://popnow.ai/docs/models/seedream-5-0-pro), [Seedream 5.0 Flash](https://popnow.ai/docs/models/seedream-5-0-flash), [Seed3D 2.0](https://popnow.ai/docs/models/seed3d-2-0), [Seedream 5.0 Lite](https://popnow.ai/docs/models/seedream-5-0-lite), [Seedream 4.5](https://popnow.ai/docs/models/seedream-4-5), [Seedream 4.0](https://popnow.ai/docs/models/seedream-4-0) |
 | Black Forest Labs | [FLUX.2 Max](https://popnow.ai/docs/models/flux-2-max), [FLUX 3 Klein Base LoRA](https://popnow.ai/docs/models/flux-3-klein-base-lora), [FLUX 3 Klein Base](https://popnow.ai/docs/models/flux-3-klein-base), [FLUX.2 Klein 9B LoRA](https://popnow.ai/docs/models/flux-2-klein-9b-lora), [FLUX.2 Klein Base 9B LoRA](https://popnow.ai/docs/models/flux-2-klein-base-9b-lora), [FLUX.2 Klein 4B LoRA](https://popnow.ai/docs/models/flux-2-klein-4b-lora), [FLUX.2 Klein Base 4B LoRA](https://popnow.ai/docs/models/flux-2-klein-base-4b-lora), [FLUX.2 Klein 9B](https://popnow.ai/docs/models/flux-2-klein-9b), [FLUX.2 Klein 4B](https://popnow.ai/docs/models/flux-2-klein-4b), [FLUX.2 Dev LoRA](https://popnow.ai/docs/models/flux-2-dev-lora), [FLUX.2 Pro](https://popnow.ai/docs/models/flux-2-pro), [FLUX.2 Flex](https://popnow.ai/docs/models/flux-2-flex), [FLUX.2 Dev](https://popnow.ai/docs/models/flux-2-dev), [FLUX.1 Krea Dev LoRA](https://popnow.ai/docs/models/flux-1-krea-dev-lora), [FLUX.1 Dev ControlNet LoRA](https://popnow.ai/docs/models/flux-1-dev-controlnet-lora), [FLUX.1 Fill Dev LoRA](https://popnow.ai/docs/models/flux-1-fill-dev-lora), [FLUX.1 Dev LoRA](https://popnow.ai/docs/models/flux-1-dev-lora), [FLUX.1 Schnell LoRA](https://popnow.ai/docs/models/flux-1-schnell-lora) |
 | Alibaba | [Qwen Image 2.1 Pro](https://popnow.ai/docs/models/qwen-image-2-1-pro), [Qwen Image 2.1 Turbo](https://popnow.ai/docs/models/qwen-image-2-1-turbo), [Qwen Image 2.1](https://popnow.ai/docs/models/qwen-image-2-1), [Qwen Image 2.1 LoRA](https://popnow.ai/docs/models/qwen-image-2-1-lora), [Qwen Image 3.0 Pro](https://popnow.ai/docs/models/qwen-image-3-0-pro), [Qwen Image 3.0](https://popnow.ai/docs/models/qwen-image-3-0), [Wan 2.7 Pro](https://popnow.ai/docs/models/wan-2-7-pro), [Wan 2.7](https://popnow.ai/docs/models/wan-2-7), [Qwen Image 2](https://popnow.ai/docs/models/alibaba-qwen-image-2), [Z-Image Base LoRA](https://popnow.ai/docs/models/z-image-base-lora), [Qwen Image 2512 LoRA](https://popnow.ai/docs/models/qwen-image-2512-lora), [Z-Image](https://popnow.ai/docs/models/z-image), [Z-Image Turbo LoRA](https://popnow.ai/docs/models/z-image-turbo-lora), [Qwen Image Edit 2509 LoRA](https://popnow.ai/docs/models/qwen-image-edit-2509-lora), [Qwen Image 1.0 LoRA](https://popnow.ai/docs/models/qwen-image-1-0-lora), [Wan 2.2 Image LoRA](https://popnow.ai/docs/models/wan-2-2-image-lora), [Wan 2.1 Image LoRA](https://popnow.ai/docs/models/wan-2-1-image-lora) |
+| Ideogram | [Ideogram Vector 1.0](https://popnow.ai/docs/models/ideogram-vector-1) |
 | Krea | [Krea 3](https://popnow.ai/docs/models/krea-3), [Krea 2 Turbo LoRA](https://popnow.ai/docs/models/krea-2-turbo-lora), [Krea 2 Large](https://popnow.ai/docs/models/krea-2-large), [Krea 2 Medium](https://popnow.ai/docs/models/krea-2-medium), [Krea 2 Medium Turbo](https://popnow.ai/docs/models/krea-2-medium-turbo) |
 | MiniMax | [MiniMax H3 Image LoRA](https://popnow.ai/docs/models/minimax-h3-image-lora) |
 | CircleStone Labs | [Anima Turbo](https://popnow.ai/docs/models/anima-turbo), [Anima Turbo LoRA](https://popnow.ai/docs/models/anima-turbo-lora) |
+| Tripo | [Tripo H3.1](https://popnow.ai/docs/models/tripo-h3-1) |
+| Recraft | [Recraft V4 Vector](https://popnow.ai/docs/models/recraft-v4-vector), [Recraft 20B SVG](https://popnow.ai/docs/models/recraft-20b-svg) |
 | Pruna AI | [P-Image LoRA](https://popnow.ai/docs/models/p-image-lora) |
 | J1B | [Jib Mix Qwen](https://popnow.ai/docs/models/jib-mix-qwen-image), [Jib Mix Qwen LoRA](https://popnow.ai/docs/models/jib-mix-qwen-image-lora) |
 | Prefect | [Prefect Pony XL LoRA](https://popnow.ai/docs/models/prefect-pony-xl-lora), [Prefect Pony XL](https://popnow.ai/docs/models/prefect-pony-xl) |
 | Neta.art Lab | [Neta Lumina](https://popnow.ai/docs/models/neta-lumina) |
-| PopNow tools | [Background Remover](https://popnow.ai/docs/models/background-remover-v1), [Image Upscaler](https://popnow.ai/docs/models/image-upscaler-v1), [Object Eraser](https://popnow.ai/docs/models/object-eraser-v1), [Image Expander](https://popnow.ai/docs/models/image-expander-v1), [Shadow Remover](https://popnow.ai/docs/models/shadow-remover-v1), [Pose Changer](https://popnow.ai/docs/models/pose-changer-v1), [Anime to Real](https://popnow.ai/docs/models/anime-to-real-v1), [Camera Angle Changer](https://popnow.ai/docs/models/camera-angle-changer-v1), [Relight](https://popnow.ai/docs/models/relight-v1) |
+| PopNow tools | [Face Swap Pro](https://popnow.ai/docs/models/face-swap-pro-v1), [Face Swap Plus](https://popnow.ai/docs/models/face-swap-v1-plus), [Celebrity Look-Alike](https://popnow.ai/docs/models/look-alike-v1), [Face Swap](https://popnow.ai/docs/models/face-swap-v1), [Head Swap](https://popnow.ai/docs/models/head-swap-v1), [Background Remover](https://popnow.ai/docs/models/background-remover-v1), [Image Upscaler](https://popnow.ai/docs/models/image-upscaler-v1), [Object Eraser](https://popnow.ai/docs/models/object-eraser-v1), [Image Expander](https://popnow.ai/docs/models/image-expander-v1), [Photo to Anime](https://popnow.ai/docs/models/photo-to-anime-v1), [Shadow Remover](https://popnow.ai/docs/models/shadow-remover-v1), [Pose Changer](https://popnow.ai/docs/models/pose-changer-v1), [Anime to Real](https://popnow.ai/docs/models/anime-to-real-v1), [Camera Angle Changer](https://popnow.ai/docs/models/camera-angle-changer-v1), [Relight](https://popnow.ai/docs/models/relight-v1), [Face Enhancer](https://popnow.ai/docs/models/face-enhancer-v1), [Object Extractor](https://popnow.ai/docs/models/object-extractor-v1), [Photo Colorizer](https://popnow.ai/docs/models/photo-colorizer-v1), [Old Photo Restorer](https://popnow.ai/docs/models/photo-restorer-v1) |
+| Topaz Labs | [Topaz Denoise & Sharpen](https://popnow.ai/docs/models/topaz-denoise-sharpen) |
 
-### Audio (17 nodes)
+### Audio (19 nodes)
 
 | Maker | Models |
 | --- | --- |
@@ -112,7 +121,7 @@ The node list follows the live PopNow catalog (`GET /api/v1/models`). At the tim
 | xAI | [Grok STT](https://popnow.ai/docs/models/grok-stt), [Grok TTS](https://popnow.ai/docs/models/grok-tts) |
 | Alibaba | [Qwen3 TTS](https://popnow.ai/docs/models/qwen-3-tts) |
 | Resemble AI | [Chatterbox](https://popnow.ai/docs/models/chatterbox-v1) |
-| PopNow tools | [Video Sound Effects](https://popnow.ai/docs/models/foley-v1) |
+| PopNow tools | [Video Sound Effects](https://popnow.ai/docs/models/foley-v1), [Vocal Isolator](https://popnow.ai/docs/models/vocal-isolator-v1), [Voice Cleaner](https://popnow.ai/docs/models/voice-cleaner-v1) |
 
 Every node with its call name and starting price: [MODELS.md](MODELS.md).
 <!-- models:end -->
@@ -189,11 +198,15 @@ and image you share.
 
 ## Costs and safety
 
-- **Price on the node.** Each node's badge shows the current rate for the options you picked, for example
-  `37 cr/s` for MiniMax H3 at 768p or `48 cr/image` for Nano Banana 2.1, and updates as you change them.
-  `~` marks models whose final charge depends on the output.
-- **Quote before every run.** Each run calls `jobs/quote` first and holds at most the quoted amount. Set
-  **Settings > PopNow > Max credits per run** and any run quoted above it stops before anything is held.
+- **Price on the node.** Each node's badge shows the current rate in US dollars for the options you picked,
+  for example `$0.037/s` for MiniMax H3 at 768p or `$0.048/image` for Nano Banana 2.1, and updates as you
+  change them. `~` marks models whose final charge depends on the output.
+- **Quote before every run.** Each run calls `jobs/quote` first, confirms the quoted maximum
+  (`maxChargeUsd`, sent back as `expectedCostUsd`) and holds at most that amount. Set
+  **Settings > PopNow > Max USD per run** and any run quoted above it stops before anything is held. A
+  limit saved in credits by version 0.1 keeps working (1 credit = $0.001) until you set a USD limit.
+- **Charge on the node.** While a run waits, the node shows the estimated cost; when it finishes, the USD
+  charged (`costUsd`).
 - **No surprise re-runs.** Seeds start on `fixed`, so queueing the same graph twice reuses the first result.
   Switch **control after generate** to `randomize` for a new result each run (each run is billed).
 - **Safe retries.** Every task is submitted with an `Idempotency-Key`; network retries reuse it, so a retry
@@ -210,7 +223,7 @@ and image you share.
 | --- | --- | --- |
 | `POPNOW_API_KEY` | environment | API key (`sk-popnow-...`); takes precedence over the key saved in Settings |
 | Settings > PopNow > API key | ComfyUI settings | Saves the key to `user/popnow/config.json` |
-| Settings > PopNow > Max credits per run | ComfyUI settings | Spending ceiling per node run (0 = no limit) |
+| Settings > PopNow > Max USD per run | ComfyUI settings | Spending ceiling per node run in US dollars (0 = no limit) |
 | `POPNOW_BASE_URL` | environment | API origin, default `https://api.popnow.ai` (for testing against a mock) |
 | `POPNOW_COMFYUI_HOME` | environment | Folder for the saved key and catalog cache, instead of `user/popnow` |
 | `HF_TOKEN`, `CIVITAI_API_KEY` | environment | Used once per LoRA import of a gated file; never stored |
@@ -223,10 +236,11 @@ and image you share.
 | `No PopNow API key is set` | Add the key in Settings > PopNow, or set `POPNOW_API_KEY`, then run again |
 | `PopNow 401` | The key is missing, mistyped or revoked; create a new one in the API console |
 | `PopNow 400` naming a field | A value the model does not accept; check the model page linked in the node's description |
-| `PopNow 40201` | Not enough credits: [buy credits](https://popnow.ai/pricing), or lower the resolution or length |
+| `PopNow 40201` | Not enough API balance: [add funds](https://popnow.ai/api/console/billing), or lower the resolution or length. Website credits do not pay for API runs |
+| `PopNow 40202` | The key reached a USD spend cap; raise it in the [API console](https://popnow.ai/api/console/keys) |
 | `PopNow 40004` | The model cannot serve that combination of settings; change the one named in the message |
 | `PopNow 40310` | Verify your email address with the link from your sign-up email |
-| `PopNow content_rejected` / `generation_failed` | The model declined or could not finish; failed runs are refunded |
+| `PopNow content_rejected` / `generation_failed` | The model declined or could not finish; failed runs are not charged |
 | An error ending in `request_id ...` | Send that id to [support](https://popnow.ai/contact); it identifies the request exactly |
 | `a proxy or firewall ... may be intercepting the request` | Check that `HTTPS_PROXY`, if set, points at a working proxy |
 | A model from popnow.ai is missing | Restart ComfyUI: the node list is built from your account's catalog at start |
@@ -248,10 +262,11 @@ the other options are widgets on the node, with the price for your settings on i
 
 ### How much does a run cost?
 
-Each model has its own rate in credits (1 credit = $0.001), shown on the node and in
-[MODELS.md](MODELS.md): image models are priced per image, video models per second of output, speech per
-1,000 characters or per request. Every run is quoted before it starts, the node prints the final charge
-when it finishes, and failed runs are refunded. Prices: [popnow.ai/pricing](https://popnow.ai/pricing).
+Each model has its own rate in US dollars, shown on the node and in [MODELS.md](MODELS.md): image models
+are priced per image, video models per second of output, speech per 1,000 characters or per request. Every
+run is quoted before it starts, the node prints the final USD charge when it finishes, and failed runs are
+not charged. Runs are paid from your prepaid API balance, which is separate from popnow.ai website credits.
+Prices: [popnow.ai/api/pricing](https://popnow.ai/api/pricing).
 
 ### Is my API key safe when I share a workflow or an image?
 
@@ -277,11 +292,12 @@ its environment or enter the key in Settings from the browser. Proxies set throu
 
 ## Links
 
-- Website: [popnow.ai](https://popnow.ai) · Pricing: [popnow.ai/pricing](https://popnow.ai/pricing)
+- Website: [popnow.ai](https://popnow.ai) · API pricing: [popnow.ai/api/pricing](https://popnow.ai/api/pricing)
+- API console: [keys](https://popnow.ai/api/console/keys) · [add funds](https://popnow.ai/api/console/billing) · Billing: [popnow.ai/docs/billing](https://popnow.ai/docs/billing)
 - Docs: [popnow.ai/docs](https://popnow.ai/docs) · ComfyUI guide: [popnow.ai/docs/comfyui](https://popnow.ai/docs/comfyui)
-- API reference: [OpenAPI spec](https://popnow.ai/docs/openapi.yaml) · Models: [popnow.ai/docs/models](https://popnow.ai/docs/models)
-- MCP server for AI assistants: [popnow.ai/mcp](https://popnow.ai/mcp)
-- Other PopNow repositories: [popnow-mcp](https://github.com/popnow-ai/popnow-mcp),
+- API reference: [OpenAPI spec](https://popnow.ai/docs/openapi.yaml) · Models: [popnow.ai/api/models](https://popnow.ai/api/models)
+- Developer MCP server (API key, USD): [popnow.ai/api/mcp](https://popnow.ai/api/mcp) · Agent skills: [popnow.ai/api/skills](https://popnow.ai/api/skills)
+- Other PopNow repositories: [popnow-api-mcp](https://github.com/popnow-ai/popnow-api-mcp),
   [popnow-skills](https://github.com/popnow-ai/popnow-skills), [popnow-python](https://github.com/popnow-ai/popnow-python),
   [popnow-js](https://github.com/popnow-ai/popnow-js), [popnow-api](https://github.com/popnow-ai/popnow-api),
   [popnow-blender](https://github.com/popnow-ai/popnow-blender), [n8n-nodes-popnow](https://github.com/popnow-ai/n8n-nodes-popnow),

@@ -1,7 +1,7 @@
 [project]
 name = "popnow-comfyui"
 description = "PopNow for ComfyUI: every PopNow AI video, image and audio model as a node (Kling, Seedance, Wan, MiniMax, Nano Banana, GPT Image, Flux, Suno). No GPU needed."
-version = "0.1.0"
+version = "0.2.0"
 license = { file = "LICENSE" }
 readme = "README.md"
 requires-python = ">=3.10"

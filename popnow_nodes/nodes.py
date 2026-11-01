@@ -36,7 +36,7 @@ from .fields import (
     plan_outputs,
     widget_to_value,
 )
-from .pricing import badge_for, describe_price
+from .pricing import badge_for, credits_to_usd, describe_price, parse_usd, usd_text
 
 log = logging.getLogger("popnow")
 
@@ -382,28 +382,62 @@ def _audio_batch(clips: list[dict[str, Any]]) -> dict[str, Any]:
     return {"waveform": torch.stack(padded), "sample_rate": rate}
 
 
-def _credits_of(value: Any) -> int | None:
-    if isinstance(value, bool):
-        return None
-    if isinstance(value, (int, float)):
-        return int(value)
-    try:
-        return int(str(value))
-    except (TypeError, ValueError):
-        return None
+def _usd_field(record: dict[str, Any], *names: str, legacy_credits: str | None = None) -> str | None:
+    """The first USD decimal string among ``names``; else the deprecated credit field, converted.
+
+    Amounts stay decimal strings exactly as the API sent them, never binary floats.
+    """
+    for name in names:
+        value = record.get(name)
+        if isinstance(value, str) and parse_usd(value) is not None:
+            return value.strip()
+    if legacy_credits is not None:
+        return credits_to_usd(record.get(legacy_credits))
+    return None
+
+
+def quote_amounts(quote: dict[str, Any]) -> tuple[str | None, str | None]:
+    """(most the run can cost, typical cost) in USD. The first is what gets held and confirmed."""
+    worst = _usd_field(quote, "maxChargeUsd", "maxCharge", "estimatedCost", legacy_credits="maxCredits")
+    usual = _usd_field(quote, "expectedChargeUsd", "expectedCharge", legacy_credits="expectedCredits") or worst
+    return worst, usual
+
+
+def _estimate_text(worst: str | None, usual: str | None) -> str:
+    if usual is None:
+        return "Estimated cost unknown"
+    text = f"Estimated {usd_text(usual)}"
+    if worst is not None and parse_usd(worst) != parse_usd(usual):
+        text += f", at most {usd_text(worst)}"
+    return text
 
 
 async def _quote_within_limit(client: PopNowClient, model_id: str, payload: dict[str, Any]) -> dict[str, Any]:
     """Quote the run and stop, before anything is held, if it could exceed the user's limit."""
     quote = await client.quote(model_id, payload)
-    ceiling = config.get_max_credits_per_run()
-    worst = _credits_of(quote.get("maxCredits"))
-    if ceiling is not None and worst is not None and worst > ceiling:
+    ceiling = config.get_max_usd_per_run()
+    worst, _usual = quote_amounts(quote)
+    amount = parse_usd(worst)
+    if ceiling is not None and amount is not None and amount > ceiling:
         raise ValueError(
-            f"This run could cost up to {worst} credits, above your limit of {ceiling} credits per "
-            "run (Settings > PopNow). Nothing was charged."
+            f"This run could cost up to {usd_text(worst)}, above your limit of {usd_text(ceiling)} per run "
+            "(Settings > PopNow). Nothing was charged."
         )
     return quote
+
+
+async def _create(
+    client: PopNowClient, model_id: str, payload: dict[str, Any], quote: dict[str, Any], idempotency_key: str
+) -> dict[str, Any]:
+    """Create the task, confirming the quoted USD hold (``expectedCostUsd`` = ``maxChargeUsd``)."""
+    confirm = _usd_field(quote, "maxChargeUsd", "maxCharge", "estimatedCost")
+    return await client.create_task(
+        model_id,
+        payload,
+        idempotency_key=idempotency_key,
+        quote_id=quote.get("quoteId"),
+        expected_cost_usd=confirm,
+    )
 
 
 async def submit_and_wait(
@@ -415,32 +449,26 @@ async def submit_and_wait(
 ) -> dict[str, Any]:
     """Quote, create the task, and poll it to a terminal state. Raises unless it succeeded."""
     quote = await _quote_within_limit(client, model_id, payload)
-    expected = _credits_of(quote.get("maxCredits"))
-    usual = _credits_of(quote.get("expectedCredits")) or expected
-    _show(node_id, f"Submitting. Estimated {usual} credits")
+    estimate = _estimate_text(*quote_amounts(quote))
+    _show(node_id, f"Submitting. {estimate}")
 
     idempotency_key = str(uuid.uuid4())
     try:
-        task = await client.create_task(
-            model_id, payload, idempotency_key=idempotency_key, quote_id=quote.get("quoteId"), expected_credits=expected
-        )
+        task = await _create(client, model_id, payload, quote, idempotency_key)
     except PopNowApiError as error:
         if error.code != 40901:
             raise
         # The price moved between quote and submit: quote again and resend under the same key,
         # so a task the server did accept is recovered rather than created twice.
         quote = await _quote_within_limit(client, model_id, payload)
-        expected = _credits_of(quote.get("maxCredits"))
-        usual = _credits_of(quote.get("expectedCredits")) or expected
-        task = await client.create_task(
-            model_id, payload, idempotency_key=idempotency_key, quote_id=quote.get("quoteId"), expected_credits=expected
-        )
+        estimate = _estimate_text(*quote_amounts(quote))
+        task = await _create(client, model_id, payload, quote, idempotency_key)
     task_id = str(task.get("taskId") or "")
 
     def on_poll(record: dict[str, Any], elapsed: float) -> None:
         state = str(record.get("state") or "")
         label = {"queued": "Queued", "running": "Generating"}.get(state, state.capitalize())
-        _show(node_id, f"{label} {int(elapsed)}s. Estimated {usual} credits\nTask {task_id}")
+        _show(node_id, f"{label} {int(elapsed)}s. {estimate}\nTask {task_id}")
 
     try:
         final = await client.wait_for_task(task_id, timeout_seconds=timeout_seconds, on_poll=on_poll)
@@ -459,10 +487,15 @@ async def submit_and_wait(
     return final
 
 
+def task_cost_usd(task: dict[str, Any]) -> str | None:
+    """The task's USD amount: the final charge once ``settled``, the hold before that."""
+    return _usd_field(task, "costUsd", "cost", legacy_credits="credits")
+
+
 def _done_text(final: dict[str, Any], started: float) -> str:
-    credits = final.get("credits")
+    cost = task_cost_usd(final)
     verb = "Charged" if final.get("settled") else "Held"
-    amount = f"{credits} credits" if credits is not None else "the quoted amount"
+    amount = usd_text(cost) if cost is not None else "the quoted amount"
     return f"Done in {int(time.monotonic() - started)}s. {verb} {amount}\nTask {final.get('taskId')}"
 
 

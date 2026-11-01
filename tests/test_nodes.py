@@ -61,7 +61,8 @@ class BuildTest(unittest.TestCase):
         self.assertEqual(schema.node_id, "PopNow_minimax_h3_image_to_video")
         self.assertEqual(schema.category, "PopNow/Video/MiniMax")
         self.assertIn("minimax/h3/image-to-video", schema.description)
-        self.assertIn("credits", schema.description)
+        self.assertRegex(schema.description, r"\$\d+\.\d+ per second")
+        self.assertNotIn("credit", schema.description)
         self.assertEqual([o.name for o in schema.outputs], ["video", "task_id"])
         image = next(i for i in schema.inputs if i.name == "image_url")
         self.assertEqual(image.socket, "IMAGE")
@@ -192,8 +193,15 @@ class RunTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(sent["model"], "test/stt/speech-to-text")
         self.assertEqual(sent["input"], {"audio_url": "https://example.com/a.mp3", "seed": 3})
         self.assertEqual(sent["quoteId"], "q_1")
-        self.assertEqual(sent["expectedCredits"], 48)
+        # The hold is confirmed in USD with the quote's maxChargeUsd, exactly as the API sent it.
+        self.assertEqual(sent["expectedCostUsd"], "0.048")
+        self.assertNotIn("expectedCredits", sent)
         self.assertEqual(self.fake.bodies["quote"][0]["input"], sent["input"])
+
+    async def test_confirms_the_maximum_not_the_typical_charge(self):
+        self.fake.behaviour.update(output={"text": "ok", "assets": []}, quote_max_usd="0.123456789", quote_expected_usd="0.1")
+        await self.run_transcriber(audio_url="https://example.com/a.mp3", language="en", seed=0)
+        self.assertEqual(self.fake.bodies["create"][0]["expectedCostUsd"], "0.123456789")
 
     async def test_price_change_requotes_under_the_same_key(self):
         self.fake.behaviour["output"] = {"text": "ok", "assets": []}
@@ -205,12 +213,54 @@ class RunTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(keys[0], keys[1])
         self.assertEqual(self.fake.bodies["create"][1]["quoteId"], "q_2")
 
-    async def test_credit_limit_stops_before_anything_is_held(self):
-        config.save_max_credits_per_run(5)
+    async def test_usd_limit_stops_before_anything_is_held(self):
+        config.save_max_usd_per_run("0.04")
         with self.assertRaises(ValueError) as caught:
             await self.run_transcriber(audio_url="https://example.com/a.mp3", language="en", seed=0)
-        self.assertIn("5 credits", str(caught.exception))
+        self.assertIn("up to $0.048", str(caught.exception))
+        self.assertIn("limit of $0.04 per run", str(caught.exception))
         self.assertNotIn("create", self.fake.calls)
+
+    async def test_usd_limit_allows_a_run_at_the_limit(self):
+        self.fake.behaviour["output"] = {"text": "ok", "assets": []}
+        config.save_max_usd_per_run("0.048")
+        result = await self.run_transcriber(audio_url="https://example.com/a.mp3", language="en", seed=0)
+        self.assertEqual(result, ["ok", "job_1"])
+
+    async def test_legacy_credit_limit_still_applies(self):
+        with open(os.path.join(self.home.name, "config.json"), "w", encoding="utf-8") as handle:
+            json.dump({"maxCreditsPerRun": 5}, handle)
+        with self.assertRaises(ValueError) as caught:
+            await self.run_transcriber(audio_url="https://example.com/a.mp3", language="en", seed=0)
+        self.assertIn("limit of $0.005 per run", str(caught.exception))
+        self.assertNotIn("create", self.fake.calls)
+
+    async def test_legacy_quote_without_usd_fields(self):
+        # An answer that carries only the deprecated credit projection still prices the run and
+        # submits on the quote id alone.
+        self.fake.behaviour.update(output={"text": "ok", "assets": []}, legacy_quote=True)
+        config.save_max_usd_per_run("0.01")
+        with self.assertRaises(ValueError) as caught:
+            await self.run_transcriber(audio_url="https://example.com/a.mp3", language="en", seed=0)
+        self.assertIn("up to $0.048", str(caught.exception))
+        config.save_max_usd_per_run(0)
+        await self.run_transcriber(audio_url="https://example.com/a.mp3", language="en", seed=0)
+        sent = self.fake.bodies["create"][0]
+        self.assertEqual(sent["quoteId"], "q_2")
+        self.assertNotIn("expectedCostUsd", sent)
+        self.assertNotIn("expectedCredits", sent)
+
+    def test_quote_and_cost_amounts(self):
+        quote = {"maxChargeUsd": "0.5", "expectedChargeUsd": "0.25", "maxCredits": 500, "expectedCredits": 250}
+        self.assertEqual(nodes.quote_amounts(quote), ("0.5", "0.25"))
+        self.assertEqual(nodes.quote_amounts({"maxCredits": 37}), ("0.037", "0.037"))
+        self.assertEqual(nodes.task_cost_usd({"costUsd": "0.0415", "credits": 42}), "0.0415")
+        self.assertEqual(nodes.task_cost_usd({"credits": 42}), "0.042")
+        self.assertIsNone(nodes.task_cost_usd({}))
+        done = nodes._done_text({"taskId": "job_1", "costUsd": "0.0415", "settled": True}, 0)
+        self.assertIn("Charged $0.0415", done)
+        held = nodes._done_text({"taskId": "job_1", "costUsd": "0.05", "settled": False}, 0)
+        self.assertIn("Held $0.05", held)
 
     async def test_failed_task_raises(self):
         self.fake.behaviour["state"] = "failed"

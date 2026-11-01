@@ -18,7 +18,7 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
 from popnow_nodes.fields import family_name, model_page, node_id_for, provider_label  # noqa: E402
-from popnow_nodes.pricing import badge_for, format_credits  # noqa: E402
+from popnow_nodes.pricing import badge_for, usd_text  # noqa: E402
 
 MODALITIES = (("video", "Video"), ("image", "Image"), ("audio", "Audio"))
 
@@ -78,8 +78,8 @@ def models_md(items: list[dict]) -> str:
         "",
         "The list is generated from the model catalog bundled with this release. ComfyUI loads the live "
         "catalog at startup once an API key is set, so models added since then appear after a restart.",
-        "Prices are starting prices in credits (1 credit = $0.001); the badge on each node shows the rate "
-        "for the options you pick.",
+        "Prices are starting rates in US dollars, paid from your PopNow API balance; the badge on each node "
+        "shows the rate for the options you pick, and every run is quoted before anything is held.",
         "",
     ]
     for key, title in MODALITIES:
@@ -89,7 +89,7 @@ def models_md(items: list[dict]) -> str:
         out += [f"## {title}", "", "| Node | Call name | From | Node type |", "| --- | --- | --- | --- |"]
         for model in sorted(subset, key=lambda m: (provider_name(m), str(m.get("displayName")))):
             badge = badge_for(model)
-            price = f"{format_credits(badge['from'])} credits / {badge['unit']}" if badge else ""
+            price = f"{usd_text(badge['from'])} / {badge['unit']}" if badge else ""
             name = str(model.get("displayName") or model["model"]).replace("|", "/")
             out.append(f"| [{name}]({model_page(model)}) | `{model['model']}` | {price} | `{node_id_for(model['model'])}` |")
         out.append("")

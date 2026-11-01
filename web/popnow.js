@@ -1,9 +1,11 @@
-// PopNow for ComfyUI: the settings panel entries and the credit price badge on every model node.
+// PopNow for ComfyUI: the settings panel entries and the USD price badge on every model node.
 import { app } from "../../scripts/app.js";
 import { api } from "../../scripts/api.js";
 
 const KEY_SETTING = "PopNow.ApiKey";
-const LIMIT_SETTING = "PopNow.MaxCreditsPerRun";
+// The per-run limit is in US dollars. The server keeps it in user/popnow/config.json; a limit saved in
+// credits by version 0.1 (setting PopNow.MaxCreditsPerRun) is converted there and shown here at startup.
+const LIMIT_SETTING = "PopNow.MaxUsdPerRun";
 const MASK = "•".repeat(4);
 const NODE_PREFIX = "PopNow_";
 const MODEL_DEFAULT = "model default";
@@ -43,6 +45,15 @@ function maskedLabel(status) {
   return `${MASK} ${status.keyHint.replace("...", "")} (${where})`;
 }
 
+// USD amounts arrive as exact decimal strings; keep every digit and show at least two decimals.
+function formatUsd(value) {
+  const text = String(value ?? "").trim();
+  if (!/^-?\d+(\.\d+)?$/.test(text)) return text;
+  const sign = text.startsWith("-") ? "-" : "";
+  const [whole, fraction = ""] = text.replace(/^-/, "").split(".");
+  return `${sign}$${whole}.${fraction.padEnd(2, "0")}`;
+}
+
 async function readJson(response) {
   try {
     return await response.json();
@@ -80,12 +91,12 @@ async function onKeyChange(value, previous) {
     return;
   }
   setSetting(KEY_SETTING, maskedLabel(result));
-  const credits = result.balance?.availableCredits;
+  const available = result.balance?.availableUsd ?? result.balance?.available;
   toast(
     "success",
     "PopNow connected",
-    credits !== undefined && credits !== null
-      ? `Available: ${credits} credits`
+    available !== undefined && available !== null
+      ? `API balance: ${formatUsd(available)} available`
       : "Key saved. It could not be checked right now.",
   );
   const refresh = result.catalogRefresh;
@@ -102,12 +113,15 @@ async function onKeyChange(value, previous) {
   }
 }
 
-async function onLimitChange(value) {
-  const amount = Math.max(0, Math.floor(Number(value) || 0));
+async function onLimitChange(value, previous) {
+  // The settings store calls this once on load with no previous value. The server copy is the one
+  // that counts (it may hold a limit carried over from credits), so that call must not overwrite it.
+  if (previous === undefined || value === previous) return;
+  const amount = Math.max(0, Number(value) || 0);
   const response = await api.fetchApi("/popnow/settings", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ maxCreditsPerRun: amount }),
+    body: JSON.stringify({ maxUsdPerRun: String(amount) }),
   });
   if (!response.ok) {
     const result = await readJson(response);
@@ -155,16 +169,16 @@ function matchRule(spec, node) {
       if (!best || entries.length > Object.keys(best.when).length) best = rule;
     }
   }
-  return best ? best.credits : null;
+  return best ? best.usd : null;
 }
 
 function priceText(node) {
   const spec = prices?.[node.comfyClass ?? node.type];
   if (!spec) return "";
   const unit = UNIT_SHORT[spec.unit] ?? spec.unit;
-  const credits = matchRule(spec, node);
-  if (credits !== null && credits !== undefined) return `${spec.approximate ? "~" : ""}${credits} cr/${unit}`;
-  return `from ${spec.from} cr/${unit}`;
+  const usd = matchRule(spec, node);
+  if (usd !== null && usd !== undefined) return `${spec.approximate ? "~" : ""}${formatUsd(usd)}/${unit}`;
+  return `from ${formatUsd(spec.from)}/${unit}`;
 }
 
 function attachBadge(node) {
@@ -195,16 +209,16 @@ app.registerExtension({
     },
     {
       id: LIMIT_SETTING,
-      category: ["PopNow", "Spending", "Max credits per run"],
-      name: "Max credits per run (0 = no limit)",
+      category: ["PopNow", "Spending", "Max USD per run"],
+      name: "Max USD per run (0 = no limit)",
       tooltip:
-        "A node whose quote is above this many credits stops before anything is held. " +
-        "1 credit = $0.001. The quote is the most a run can cost.",
+        "A node whose quote is above this many US dollars stops before anything is held. Runs are " +
+        "paid from your PopNow API balance; the quote is the most a run can cost.",
       type: "number",
       defaultValue: 0,
-      attrs: { min: 0, step: 10 },
-      onChange: (value) => {
-        onLimitChange(value).catch((error) => toast("error", "PopNow", String(error)));
+      attrs: { min: 0, step: 0.01 },
+      onChange: (value, previous) => {
+        onLimitChange(value, previous).catch((error) => toast("error", "PopNow", String(error)));
       },
     },
   ],
@@ -223,6 +237,10 @@ app.registerExtension({
       const expected = maskedLabel(status);
       if (shown !== expected && (status.configured || shown.startsWith(MASK))) {
         await setSetting(KEY_SETTING, expected);
+      }
+      const limit = Number(status.maxUsdPerRun ?? 0) || 0;
+      if (Number(getSetting(LIMIT_SETTING) ?? 0) !== limit) {
+        await setSetting(LIMIT_SETTING, limit);
       }
     } catch (error) {
       console.warn("[PopNow] status unavailable", error);

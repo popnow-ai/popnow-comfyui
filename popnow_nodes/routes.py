@@ -18,20 +18,34 @@ log = logging.getLogger("popnow")
 
 # Filled in by the extension once the nodes are built.
 STATE: dict[str, Any] = {"source": "empty", "count": 0, "fetchedAt": None, "badges": {}, "models": set()}
-BALANCE_FIELDS = ("available", "held", "total", "availableCredits", "heldCredits", "totalCredits")
+# The API balance in USD. available/held/total are the older names of the same USD strings; the
+# *Credits fields are deprecated projections passed through for older copies of the panel script.
+BALANCE_FIELDS = (
+    "availableUsd",
+    "heldUsd",
+    "totalUsd",
+    "available",
+    "held",
+    "total",
+    "availableCredits",
+    "heldCredits",
+    "totalCredits",
+)
 
 _registered = False
 
 
 def status_payload() -> dict[str, Any]:
     api_key, source = config.get_api_key()
-    ceiling = config.get_max_credits_per_run()
+    ceiling = config.get_max_usd_per_run()
     return {
         "version": VERSION,
         "configured": bool(api_key),
         "keySource": source,
         "keyHint": config.key_hint(api_key),
-        "maxCreditsPerRun": ceiling or 0,
+        "maxUsdPerRun": format(ceiling.normalize(), "f") if ceiling is not None else "0",
+        # Deprecated: the same limit in credits (1 credit = $0.001), for older copies of the panel script.
+        "maxCreditsPerRun": config.get_max_credits_per_run() or 0,
         "catalog": {
             "source": STATE["source"],
             "count": STATE["count"],
@@ -113,11 +127,14 @@ def register() -> None:
             body = await request.json()
         except ValueError:
             return web.json_response({"ok": False, "message": "Send JSON."}, status=400)
-        if "maxCreditsPerRun" in (body or {}):
-            try:
+        body = body if isinstance(body, dict) else {}
+        try:
+            if "maxUsdPerRun" in body:
+                config.save_max_usd_per_run(body["maxUsdPerRun"])
+            elif "maxCreditsPerRun" in body:  # deprecated: a limit in credits from an older panel script
                 config.save_max_credits_per_run(body["maxCreditsPerRun"])
-            except ValueError as error:
-                return web.json_response({"ok": False, "message": str(error)}, status=400)
+        except ValueError as error:
+            return web.json_response({"ok": False, "message": str(error)}, status=400)
         return web.json_response({"ok": True, **status_payload()})
 
     @routes.get("/popnow/balance")

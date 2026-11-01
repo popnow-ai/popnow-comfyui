@@ -16,6 +16,7 @@ import contextlib
 import json
 import os
 import tempfile
+from decimal import ROUND_HALF_UP, Decimal, InvalidOperation
 from pathlib import Path
 from typing import Any
 
@@ -109,7 +110,37 @@ def get_base_url() -> str:
     return value
 
 
+# USD amounts carry at most nine decimal places.
+_USD_STEP = Decimal("0.000000001")
+# Deprecated: the fixed rate of the legacy credit projection, used to read limits saved by version 0.1.
+_CREDIT_USD = Decimal("0.001")
+
+
+def _parse_usd(value: Any) -> Decimal:
+    """A spending limit in US dollars as an exact decimal; zero or nothing means no limit."""
+    if value in (None, ""):
+        return Decimal(0)
+    amount: Decimal | None = None
+    if not isinstance(value, bool):
+        try:
+            parsed = Decimal(str(value).strip())
+            if parsed.is_finite():
+                amount = parsed.quantize(_USD_STEP, rounding=ROUND_HALF_UP)
+        except InvalidOperation:
+            amount = None
+    if amount is None:
+        raise ValueError("maxUsdPerRun must be an amount in US dollars, such as 0.50")
+    if amount < 0:
+        raise ValueError("maxUsdPerRun must not be negative")
+    return amount.normalize()
+
+
+def _usd_text(amount: Decimal) -> str:
+    return "0" if amount == 0 else format(amount.normalize(), "f")
+
+
 def _parse_credits(value: Any) -> int:
+    """Deprecated: a limit in credits, as version 0.1 stored it."""
     if value in (None, ""):
         return 0
     try:
@@ -121,18 +152,43 @@ def _parse_credits(value: Any) -> int:
     return int(number)
 
 
-def get_max_credits_per_run() -> int | None:
-    """Spending ceiling for one node run in credits, or None when no ceiling is set."""
+def get_max_usd_per_run() -> Decimal | None:
+    """Spending ceiling for one node run in US dollars, or None when no ceiling is set.
+
+    A limit saved by version 0.1 as ``maxCreditsPerRun`` still applies, at 1 credit = $0.001,
+    until a new USD limit is saved.
+    """
+    data = _read()
     try:
-        value = _parse_credits(_read().get("maxCreditsPerRun"))
+        if "maxUsdPerRun" in data:
+            value = _parse_usd(data.get("maxUsdPerRun"))
+        else:
+            value = Decimal(_parse_credits(data.get("maxCreditsPerRun"))) * _CREDIT_USD
     except ValueError:
         return None
     return value if value > 0 else None
 
 
-def save_max_credits_per_run(value: Any) -> int | None:
+def save_max_usd_per_run(value: Any) -> Decimal | None:
+    """Save the per-run ceiling in US dollars (0 removes it). Replaces a legacy credit limit."""
     data = _read()
-    parsed = _parse_credits(value)
-    data["maxCreditsPerRun"] = parsed
+    parsed = _parse_usd(value)
+    data["maxUsdPerRun"] = _usd_text(parsed)
+    data.pop("maxCreditsPerRun", None)
     _write(data)
+    return parsed if parsed > 0 else None
+
+
+def get_max_credits_per_run() -> int | None:
+    """Deprecated: the ceiling in credits (1 credit = $0.001). Use ``get_max_usd_per_run``."""
+    usd = get_max_usd_per_run()
+    if usd is None:
+        return None
+    return int(usd / _CREDIT_USD) or None
+
+
+def save_max_credits_per_run(value: Any) -> int | None:
+    """Deprecated: save the ceiling in credits (1 credit = $0.001). Use ``save_max_usd_per_run``."""
+    parsed = _parse_credits(value)
+    save_max_usd_per_run(Decimal(parsed) * _CREDIT_USD)
     return parsed if parsed > 0 else None

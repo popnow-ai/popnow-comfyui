@@ -48,8 +48,8 @@ RECOVERY_BY_CODE: Mapping[int, str] = {
         "The model cannot serve this combination of settings right now. Change the setting named "
         "in the message, or pick another model."
     ),
-    40201: "Not enough credits for this run. Buy credits at https://popnow.ai/pricing, then run it again.",
-    40202: "This key reached its spend cap. Raise the cap in the API console, or wait for it to reset.",
+    40201: "Not enough API balance for this run. Add funds at https://popnow.ai/api/console/billing, then run it again.",
+    40202: "This key reached its USD spend cap. Raise the cap in the API console, or wait for it to reset.",
     40301: "This key may not call this model. Add the model to the key's allowed list in the API console.",
     40302: "This request came from an address outside the key's IP allow-list.",
     40310: (
@@ -58,7 +58,7 @@ RECOVERY_BY_CODE: Mapping[int, str] = {
     ),
     40901: "The price changed before the task was created. Run the node again to accept the new price.",
     50301: "This model cannot take tasks right now. Try again later or pick another model.",
-    50302: "The generation failed and was refunded. Run the node again.",
+    50302: "The generation failed and nothing was charged: its hold was released. Run the node again.",
 }
 
 InterruptCheck = Callable[[], None]
@@ -105,7 +105,7 @@ class PopNowTaskFailed(RuntimeError):
         state = task.get("state")
         code = task.get("errorCode") or state
         message = task.get("errorMessage") or f"the task ended as {state}"
-        hint = " Failed runs are refunded."
+        hint = " Failed runs are not charged: the hold goes back to your API balance."
         if code == "content_rejected":
             hint = " The model declined this request. Unless the model page says refusals are billed, nothing was charged."
         super().__init__(f"PopNow {code}: {message}{hint} (task {task.get('taskId')})")
@@ -260,17 +260,23 @@ class PopNowClient:
     # -- Catalog and account ----------------------------------------------
 
     async def list_models(self) -> list[dict[str, Any]]:
-        """Every image, video and audio model this key can call, with input schemas and credit prices."""
+        """Every model this key can call, with input schemas and USD rates (``usd``)."""
         data = await self.request("GET", "/api/v1/models?includeSchema=1", timeout=30)
         items = data.get("items") if isinstance(data, dict) else None
         return [item for item in items or [] if isinstance(item, dict)]
 
     async def balance(self) -> dict[str, Any]:
+        """The API balance in USD: ``availableUsd``, ``heldUsd`` and ``totalUsd`` (decimal strings).
+
+        The response also carries the deprecated ``availableCredits``, ``heldCredits`` and
+        ``totalCredits`` projections; read the USD fields instead. The path name is historical.
+        """
         return await self.request("GET", "/api/v1/chat/credit")
 
     # -- Tasks ------------------------------------------------------------
 
     async def quote(self, model: str, input_data: Mapping[str, Any]) -> dict[str, Any]:
+        """Price a run without holding anything: ``maxChargeUsd`` (the hold) and ``expectedChargeUsd``."""
         return await self.request("POST", "/api/v1/jobs/quote", body={"model": model, "input": dict(input_data)})
 
     async def create_task(
@@ -280,12 +286,22 @@ class PopNowClient:
         *,
         idempotency_key: str,
         quote_id: str | None = None,
+        expected_cost_usd: str | None = None,
         expected_credits: int | None = None,
     ) -> dict[str, Any]:
-        """Submit one task. Every resend of this submission must reuse the same key."""
+        """Submit one task. Every resend of this submission must reuse the same key.
+
+        ``expected_cost_usd`` confirms the hold: pass the quote's ``maxChargeUsd`` string unchanged
+        (or pass ``quote_id`` alone). The response carries ``estimatedCostUsd``, the USD held.
+
+        ``expected_credits`` is deprecated (the API's integer credit projection); it is still sent
+        when given, but the USD amount or the quote is what confirms the price.
+        """
         body: dict[str, Any] = {"model": model, "input": dict(input_data)}
         if quote_id:
             body["quoteId"] = quote_id
+        if expected_cost_usd is not None:
+            body["expectedCostUsd"] = str(expected_cost_usd)
         if expected_credits is not None:
             body["expectedCredits"] = int(expected_credits)
         return await self.request(

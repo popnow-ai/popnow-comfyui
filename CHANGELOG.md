@@ -1,9 +1,27 @@
 # Changelog
 
-## Unreleased
+## 0.2.0 - 2026-11-01
 
-- Prices follow the new credit unit (1 credit = $0.001 since 2026-10-19): the bundled catalog
-  snapshot, MODELS.md, the dollar amount in node descriptions and the settings tooltip.
+The PopNow API bills in US dollars from its own API balance, separate from popnow.ai website credits.
+This release follows it everywhere.
+
+- Price badges, node descriptions and MODELS.md show USD rates (`$0.037/s`, `$0.048/image`) from the
+  catalog's `usd` rate table. A catalog cached by 0.1 (credit rates only) is converted, so it still shows a
+  price.
+- Each run confirms the quote in USD: `createTask` gets `expectedCostUsd` (the quote's `maxChargeUsd`)
+  with the `quoteId`, instead of the deprecated `expectedCredits`. The node shows the estimated and the
+  charged amount in USD (`expectedChargeUsd`, `costUsd`).
+- The spending limit is now **Settings > PopNow > Max USD per run** (`maxUsdPerRun`). A limit saved in
+  credits (`maxCreditsPerRun`) keeps applying at 1 credit = $0.001 until a USD limit is saved, and the
+  settings route still accepts it. Saved workflows are unaffected: no node input changed.
+- The key check shows the API balance in USD (`availableUsd`). Error 40201 points to adding funds in the API
+  console.
+- The bundled catalog snapshot is refreshed (305 models) and stores USD rates.
+- Links point to the developer MCP server (popnow.ai/api/mcp, popnow-api-mcp) and developer skills
+  (popnow.ai/api/skills).
+- Deprecated, still working: `pricing.format_credits`, `pricing.format_usd` (credit input),
+  `config.get_max_credits_per_run`, `config.save_max_credits_per_run`, and the `expected_credits` argument of
+  `PopNowClient.create_task`.
 
 ## 0.1.0
 
