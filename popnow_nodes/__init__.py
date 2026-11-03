@@ -5,4 +5,4 @@ tests can run them with a plain Python interpreter. Only ``nodes``, ``media``, `
 ``extension`` touch ComfyUI, torch or PyAV, and ``nodes`` loads ``media`` only when a node runs.
 """
 
-VERSION = "0.2.0"
+VERSION = "0.3.0"
