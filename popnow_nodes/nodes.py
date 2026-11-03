@@ -309,6 +309,8 @@ def _outputs_for(plan: OutputPlan) -> list[io.Output]:
             ),
             task_id,
         ]
+    if plan.primary == "file":
+        return [io.String.Output("files_json", display_name="file links"), task_id]
     return [io.String.Output("text", display_name="text"), task_id]
 
 
@@ -324,6 +326,8 @@ async def _collect_outputs(client: PopNowClient, plan: OutputPlan, task: dict[st
     assets = output_assets(task)
     if plan.primary == "text":
         return [_task_text(task), task_id]
+    if plan.primary == "file":
+        return [json.dumps(task.get("output") or {}, ensure_ascii=False), task_id]
     media = _media()
     if plan.primary == "image":
         blobs = await _download_all(client, assets, "image/")

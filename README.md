@@ -331,3 +331,5 @@ authenticated `GET /api/v1/models?includeSchema=1` instead. See [CONTRIBUTING.md
 ## License
 
 [MIT](LICENSE) © PopNow
+
+3D nodes return mesh download URLs in the `file links` JSON output. Embedding nodes return vectors and measured usage as JSON in their text output.

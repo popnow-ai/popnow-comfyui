@@ -1,5 +1,6 @@
 """Node classes built from the snapshot, with ComfyUI replaced by tests/comfy_stub.py."""
 
+import asyncio
 import json
 import os
 import tempfile
@@ -45,6 +46,15 @@ class BuildTest(unittest.TestCase):
         for node in built:
             schema = node.GET_SCHEMA()
             self.assertTrue(schema.category.startswith("PopNow"), schema.node_id)
+
+    def test_mesh_output_returns_download_links_without_loading_media(self):
+        model = next(i for i in snapshot_items() if i["model"] == "tripo/h3.1/text-to-3d")
+        plan = plan_outputs(model)
+        self.assertEqual(plan.primary, "file")
+        task = {"taskId": "mesh_1", "output": {"assets": [{"url": "https://example.com/mesh.glb", "mime": "model/gltf-binary"}]}}
+        result = asyncio.run(nodes._collect_outputs(None, plan, task))
+        self.assertEqual(json.loads(result[0]), task["output"])
+        self.assertEqual(result[1], "mesh_1")
 
     def test_text_and_chat_models_are_not_nodes(self):
         built, _ = nodes.build_all(
