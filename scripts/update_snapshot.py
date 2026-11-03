@@ -140,8 +140,12 @@ async def build_live(api_key: str) -> list[dict[str, Any]]:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--public", action="store_true", help="build from public popnow.ai pages, no key needed")
+    parser.add_argument("--source", type=Path, help="saved PopNow API catalog, for reproducible release snapshots")
     args = parser.parse_args()
-    if args.public:
+    if args.source:
+        data = json.loads(args.source.read_text(encoding="utf-8"))
+        items, source = data.get("data", data)["items"], "api-snapshot"
+    elif args.public:
         items, source = build_public(), "public"
     else:
         api_key = os.environ.get("POPNOW_API_KEY", "").strip()
