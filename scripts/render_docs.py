@@ -20,7 +20,7 @@ sys.path.insert(0, str(ROOT))
 from popnow_nodes.fields import family_name, model_page, node_id_for, provider_label  # noqa: E402
 from popnow_nodes.pricing import badge_for, usd_text  # noqa: E402
 
-MODALITIES = (("video", "Video"), ("image", "Image"), ("audio", "Audio"))
+MODALITIES = (("video", "Video"), ("image", "Image"), ("audio", "Audio"), ("text", "Text and vectors"))
 
 
 def load() -> list[dict]:
@@ -28,7 +28,7 @@ def load() -> list[dict]:
 
 
 def media_models(items: list[dict]) -> list[dict]:
-    return [m for m in items if m.get("enabled") is not False and m.get("modality") in ("image", "video", "audio")]
+    return [m for m in items if m.get("enabled") is not False and m.get("modality") in ("image", "video", "audio", "text") and "chat" not in m.get("tasks", [])]
 
 
 def provider_name(model: dict) -> str:
@@ -74,7 +74,7 @@ def models_md(items: list[dict]) -> str:
         "# PopNow models available as ComfyUI nodes",
         "",
         f"{s['nodes']} PopNow models, one ComfyUI node each: {s['video']} video, {s['image']} image and "
-        f"{s['audio']} audio. Any of them can also be called by name from the **PopNow Generate** node.",
+        f"{s['audio']} audio and {s['text']} text/vector models. Any of them can also be called by name from the **PopNow Generate** node.",
         "",
         "The list is generated from the model catalog bundled with this release. ComfyUI loads the live "
         "catalog at startup once an API key is set, so models added since then appear after a restart.",
@@ -99,7 +99,7 @@ def models_md(items: list[dict]) -> str:
 def stats_line(items: list[dict]) -> str:
     s = stats(items)
     return (
-        f"**{s['nodes']} model nodes** ({s['video']} video, {s['image']} image, {s['audio']} audio) "
+        f"**{s['nodes']} model nodes** ({s['video']} video, {s['image']} image, {s['audio']} audio, {s['text']} text/vector) "
         f"from {s['families']} model families, plus **PopNow Generate** and **PopNow LoRA**."
     )
 

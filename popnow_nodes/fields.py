@@ -391,7 +391,7 @@ def plan_outputs(model: dict[str, Any]) -> OutputPlan:
     tasks = [str(t) for t in model.get("tasks") or []]
     schema = model.get("inputSchema") or {}
     properties = schema.get("properties") or {}
-    if "speech-to-text" in tasks:
+    if modality == "text" or any(t in tasks for t in ("speech-to-text", "realtime-transcription", "image-to-3d", "text-to-3d")):
         return OutputPlan("text")
     if modality == "video":
         return OutputPlan("video", last_frame="return_last_frame" in properties)

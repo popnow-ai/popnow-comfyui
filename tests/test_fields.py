@@ -51,7 +51,7 @@ class SnapshotMappingTest(unittest.TestCase):
         self.assertGreater(len(models), 100, "the snapshot should hold the whole catalog")
         for model in models.values():
             with self.subTest(model=model["model"]):
-                self.assertIn(model["modality"], ("image", "video", "audio"))
+                self.assertIn(model["modality"], ("image", "video", "audio", "text"))
                 specs = build_fields(model["inputSchema"])
                 self.assertTrue(specs)
                 for spec in specs:

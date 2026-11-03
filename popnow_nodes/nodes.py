@@ -819,7 +819,7 @@ def is_media_model(model: dict[str, Any]) -> bool:
     """Image, video and audio models only: PopNow has no text or chat models on its API."""
     if model.get("enabled") is False:
         return False
-    return model.get("modality") in ("image", "video", "audio") and "chat" not in (model.get("tasks") or [])
+    return model.get("modality") in ("image", "video", "audio", "text") and "chat" not in (model.get("tasks") or [])
 
 
 def build_all(items: list[dict[str, Any]]) -> tuple[list[type[io.ComfyNode]], dict[str, Any]]:

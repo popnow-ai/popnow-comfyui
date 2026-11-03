@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.0 — 2026-11-03
+
+- Refresh all media and embedding model schemas and exact USD rates from the current API catalog.
+- Add reproducible offline catalog snapshot updates.
+
 ## 0.2.0 - 2026-11-01
 
 The PopNow API bills in US dollars from its own API balance, separate from popnow.ai website credits.
